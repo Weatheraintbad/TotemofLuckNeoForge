@@ -8,8 +8,4 @@ Forge version of Totem of Luck, detailed in
 
 https://github.com/Weatheraintbad/TotemofLuck
 
-### 已知问题 Known issue
-图腾动画渲染错误，无法显示贴图
-
-The totem animation rendering is incorrect, texture cannot be displayed.
 </div>
