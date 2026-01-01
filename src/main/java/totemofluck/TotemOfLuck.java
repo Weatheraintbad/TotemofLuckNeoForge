@@ -48,7 +48,6 @@ public class TotemOfLuck {
                 try {
                     Thread.sleep(50); // 20 FPS 检查
                     if (mc.player != null && mc.player.deathTime > 0) {
-                        // ✅ 每 50ms 检查并渲染
                         totemofluck.client.TotemAnimationRenderer.renderTotemAnimation(mc.player);
                     }
                 } catch (Exception e) {
