@@ -10,7 +10,6 @@ import net.minecraft.world.effect.MobEffects;
 import java.util.List;
 
 public class ModConfig {
-    // 只存储效果ID字符串（避免静态初始化时访问注册表）
     private static final List<String> BUFF_POOL_IDS = List.of(
             "minecraft:speed",
             "minecraft:haste",
@@ -23,7 +22,6 @@ public class ModConfig {
             "minecraft:luck"
     );
 
-    // 在运行时动态获取Holder（安全）
     public static List<Holder<MobEffect>> getBuffPool() {
         return BUFF_POOL_IDS.stream()
                 .map(id -> BuiltInRegistries.MOB_EFFECT
@@ -73,14 +71,9 @@ public class ModConfig {
     public static final boolean WORK_IN_HARD_DIFFICULTY = true;            // 是否在困难难度工作
     public static final boolean CONSUME_TOTEM_IN_CREATIVE = false;         // 创造模式是否消耗图腾
 
-    // 6. 冷却时间（防止滥用）
+    // 6. 冷却时间
     public static final int RESURRECTION_COOLDOWN_SECONDS = 0;             // 复活冷却时间（秒，0=无冷却）
 
-    // ========== 工具方法 ==========
-
-    /**
-     * 获取复活效果的完整持续时间（秒）
-     */
     public static int getResurrectionEffectDurationSeconds() {
         int maxDuration = Math.max(
                 RESURRECTION_REGENERATION_DURATION,
@@ -95,30 +88,18 @@ public class ModConfig {
         return maxDuration / 20; // 转换为秒
     }
 
-    /**
-     * 获取行为buff的持续时间（刻）
-     */
     public static int getBuffDurationTicks() {
         return BUFF_SECONDS * 20;
     }
 
-    /**
-     * 获取复活冷却时间（刻）
-     */
     public static int getResurrectionCooldownTicks() {
         return RESURRECTION_COOLDOWN_SECONDS * 20;
     }
 
-    /**
-     * 检查是否可以触发行为buff
-     */
     public static boolean shouldTriggerBuff() {
         return Math.random() * 100 < BUFF_CHANCE_PERCENT;
     }
 
-    /**
-     * 获取有效的复活效果列表
-     */
     public static List<Holder<MobEffect>> getResurrectionEffects() {
         return List.of(
                 MobEffects.REGENERATION,

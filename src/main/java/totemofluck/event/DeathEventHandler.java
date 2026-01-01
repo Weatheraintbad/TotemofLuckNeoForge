@@ -12,10 +12,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.network.PacketDistributor;
 import totemofluck.config.ModConfig;
 import totemofluck.item.ModItems;
 import totemofluck.util.TotemHelper;
-import totemofluck.client.TotemAnimationRenderer;
+import totemofluck.network.TotemOfLuckPacket;
 
 public class DeathEventHandler {
     @SubscribeEvent
@@ -96,13 +97,13 @@ public class DeathEventHandler {
                     ModConfig.RESURRECTION_SOUND_PITCH);
         }
 
-        if (player.level().isClientSide) {
-            // 直接调用，不依赖任何事件
-            totemofluck.client.TotemAnimationRenderer.renderTotemAnimation(player);
-        } else {
-            // 服务端：通过实体数据标记
-            player.getPersistentData().putBoolean("totem_animation", true);
+        if (!player.level().isClientSide) {
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(
+                    player,
+                    new TotemOfLuckPacket(player.getId())
+            );
         }
+
 
         if (totem != null) totem.shrink(1);
     }

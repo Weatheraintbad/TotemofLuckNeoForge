@@ -1,20 +1,15 @@
 package totemofluck;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
-import totemofluck.client.TotemAnimationRenderer;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import totemofluck.item.ModItems;
 import totemofluck.event.DeathEventHandler;
 import totemofluck.event.PlayerEventHandler;
-import totemofluck.util.TotemHelper;
+import totemofluck.network.TotemOfLuckPacket;
 
 @Mod(TotemOfLuck.MOD_ID)
 public class TotemOfLuck {
@@ -23,16 +18,10 @@ public class TotemOfLuck {
     public TotemOfLuck(IEventBus modBus) {
         ModItems.ITEMS.register(modBus);
         modBus.addListener(this::addCreative);
+        modBus.addListener(this::registerPayloadHandler);
 
         NeoForge.EVENT_BUS.register(new DeathEventHandler());
         NeoForge.EVENT_BUS.register(new PlayerEventHandler());
-
-        System.out.println("=== TOTEM MOD INITIALIZED ===");
-        System.out.println("Is client: " + (FMLEnvironment.dist == Dist.CLIENT));
-
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            startClientRenderThread();
-        }
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent e) {
@@ -41,20 +30,10 @@ public class TotemOfLuck {
         }
     }
 
-    private void startClientRenderThread() {
-        new Thread(() -> {
-            Minecraft mc = Minecraft.getInstance();
-            while (mc.isRunning()) {
-                try {
-                    Thread.sleep(50); // 20 FPS 检查
-                    if (mc.player != null && mc.player.deathTime > 0) {
-                        totemofluck.client.TotemAnimationRenderer.renderTotemAnimation(mc.player);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    private void registerPayloadHandler(RegisterPayloadHandlersEvent event) {
+        event.registrar(MOD_ID)
+                .playToClient(TotemOfLuckPacket.TYPE, TotemOfLuckPacket.STREAM_CODEC,
+                        TotemOfLuckPacket.Handler::handle);
     }
 
     public static net.minecraft.resources.ResourceLocation modLoc(String path) {
